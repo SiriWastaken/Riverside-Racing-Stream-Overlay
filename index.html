@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ERLC Racing Overlay</title>
+
+<style>
+:root {
+    /* =========================
+       EASY SETTINGS & COLORS
+       ========================= */
+    --fia-color: #FF6F59;
+    --race-color: #B8DBD9;
+    --purple-fastest: #B23BFF;
+    --penalty-yellow: #FFD200;
+
+    --bg: rgba(18, 18, 20, 0.90);
+    --bg-light: rgba(35, 35, 40, 0.90);
+
+    --white: #ffffff;
+    --gray: #cfcfcf;
+
+    --font: Inter, Arial, Helvetica, sans-serif;
+}
+
+/* RESET */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    overflow:hidden;
+    font-family:var(--font);
+    color:white;
+    background:transparent;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* TOP BANNER */
+#topBanner{
+    position:absolute;
+    top:30px;
+    left:30px;
+    background:var(--bg);
+    border-left:8px solid var(--fia-color);
+    padding:18px 24px;
+    min-width:350px;
+}
+
+#raceName{
+    font-size:30px;
+    font-weight:800;
+}
+
+#session{
+    color:var(--gray);
+    font-size:15px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+}
+
+/* LAP COUNTER */
+#lapBox{
+    position:absolute;
+    top:30px;
+    right:30px;
+    background:var(--bg);
+    padding:16px 24px;
+    border-right:8px solid var(--race-color);
+    text-align:right;
+}
+
+#lapLabel{
+    font-size:14px;
+    color:var(--gray);
+    letter-spacing:2px;
+}
+
+#lapCount{
+    font-size:32px;
+    font-weight:800;
+}
+
+/* FLAG STATUS */
+#flagBox{
+    position:absolute;
+    top:120px;
+    right:30px;
+    background:var(--bg);
+    padding:12px 20px;
+    transition: all 0.3s ease;
+}
+
+#flagStatus{
+    font-size:20px;
+    font-weight:700;
+}
+
+/* Track flag style multipliers */
+.flag-green { border-right: 6px solid #4CD964; }
+.flag-yellow { border-right: 6px solid #FFCC00; color: #FFCC00; }
+.flag-red { border-right: 6px solid #FF3B30; color: #FF3B30; }
+.flag-safety { border-right: 6px solid #FF9500; color: #FF9500; animation: flash 1s infinite alternate; }
+.flag-vsc { border-right: 6px solid #FF9500; color: #FF9500; }
+
+@keyframes flash {
+    from { opacity: 1; }
+    to { opacity: 0.6; }
+}
+
+/* LEADERBOARD */
+#leaderboard{
+    position:absolute;
+    left:30px;
+    top:150px;
+    width:350px;
+    background:var(--bg);
+}
+
+.leaderHeader{
+    background:var(--fia-color);
+    font-weight:800;
+    padding:10px 16px;
+    letter-spacing: 1px;
+}
+
+.driver{
+    display:flex;
+    justify-content:space-between;
+    padding:12px 16px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    align-items: center;
+}
+
+.position{
+    font-weight:800;
+    color:var(--race-color);
+    width: 35px;
+}
+
+.driverName{
+    flex-grow:1;
+    margin-left:5px;
+    font-weight: 600;
+}
+
+.gap{
+    color:var(--gray);
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+}
+
+/* PENALTIES BAR */
+#penaltiesBar {
+    position: absolute;
+    left: 30px;
+    bottom: 175px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 350px;
+}
+
+.penalty-item {
+    background: rgba(26, 15, 12, 0.92);
+    border-left: 6px solid var(--penalty-yellow);
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.penalty-driver {
+    font-weight: 800;
+    color: var(--white);
+}
+
+.penalty-reason {
+    color: var(--penalty-yellow);
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* LOWER THIRD */
+#lowerThird{
+    position:absolute;
+    left:30px;
+    bottom:40px;
+    min-width:500px;
+    background:var(--bg);
+    border-left:10px solid var(--race-color);
+    padding:20px;
+}
+
+#driverPosition{
+    color:var(--fia-color);
+    font-weight:900;
+    font-size:18px;
+}
+
+#driverName{
+    font-size:34px;
+    font-weight:900;
+}
+
+#driverTeam{
+    color:var(--gray);
+    font-size:15px;
+    margin-top:5px;
+}
+
+/* ANIMATION */
+.fadeIn{
+    animation:fade .5s ease;
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* UTILITY DISPLAY CLASS */
+.hide-view {
+    display: none !important;
+}
+</style>
+</head>
+
+<body>
+
+<div id="topBanner" class="fadeIn">
+    <div id="raceName">TORONTO GP</div>
+    <div id="session">RACE</div>
+</div>
+
+<div id="lapBox">
+    <div id="lapLabel">LAP</div>
+    <div id="lapCount">12 / 25</div>
+</div>
+
+<div id="flagBox">
+    <div id="flagStatus">🟢 GREEN FLAG</div>
+</div>
+
+<div id="leaderboard">
+    <div class="leaderHeader">LIVE STANDINGS</div>
+    <div id="driverContainer"></div>
+</div>
+
+<div id="penaltiesBar">
+    </div>
+
+<div id="lowerThird">
+    <div id="driverPosition">P1</div>
+    <div id="driverName">Sri</div>
+    <div id="driverTeam">Apex Racing</div>
+</div>
+
+<script>
+
+/* ====================================================================
+   ✏️ EASY DATA CONFIGURATION ENGINE (Edit your live session data here)
+   ==================================================================== */
+
+const raceConfig = {
+    // VISIBILITY SWITCHES (Set to true to show, false to completely hide on screen)
+    shows: {
+        topBanner: true,
+        lapBox: true,
+        flagBox: true,
+        leaderboard: true,
+        penaltiesBar: true,
+        lowerThird: true
+    },
+
+    // BANNER & LAPS INFO
+    raceName: "RIVERSIDE GP",
+    session: "PRACTICE",
+    currentLap: 9,
+    totalLaps: 20,
+
+    flagText: "🟠 SAFETY CAR", 
+
+    // CURRENT FEATURED DRIVER CARD (Lower Third Focus)
+    featuredDriver: {
+        position: "P1",
+        name: "Skimchi12",
+        team: "Red Bull Racing"
+    },
+
+    // LIVE PENALTIES RECEIVED BAR
+    // Add/remove array items as needed to broadcast live penalties
+    penalties: [
+        { driver: "#44 ABCGRA123", infraction: "50s - Track Limits" },
+        { driver: "#44 ABCGRA123", infraction: "Skid Thickness" }
+    ],
+
+    // LIVE LEADERBOARD GRID ARRAY
+    leaderboard: [
+        { pos: "1", name: "Skimchi12", gap: "LEADER" },
+        { pos: "2", name: "Driver 2", gap: "+1.242" },
+        { pos: "3", name: "Driver 3", gap: "+3.719" },
+        { pos: "4", name: "Driver 4", gap: "+5.110" },
+        { pos: "5", name: "Driver 5", gap: "+7.443" },
+        { pos: "6", name: "Driver 6", gap: "+10.002" },
+        { pos: "7", name: "Driver 7", gap: "+14.590" },
+        { pos: "8", name: "Driver 8", gap: "+18.211" }
+    ]
+};
+
+/* ====================================
+   CORE RENDER PIPELINE
+   ==================================== */
+
+function executeRender() {
+    // Handle Global Component Visibility States
+    document.getElementById("topBanner").classList.toggle("hide-view", !raceConfig.shows.topBanner);
+    document.getElementById("lapBox").classList.toggle("hide-view", !raceConfig.shows.lapBox);
+    document.getElementById("flagBox").classList.toggle("hide-view", !raceConfig.shows.flagBox);
+    document.getElementById("leaderboard").classList.toggle("hide-view", !raceConfig.shows.leaderboard);
+    document.getElementById("penaltiesBar").classList.toggle("hide-view", !raceConfig.shows.penaltiesBar);
+    document.getElementById("lowerThird").classList.toggle("hide-view", !raceConfig.shows.lowerThird);
+
+    // Render Global Identifiers
+    document.getElementById("raceName").textContent = raceConfig.raceName;
+    document.getElementById("session").textContent = raceConfig.session;
+    document.getElementById("lapCount").textContent = `${raceConfig.currentLap} / ${raceConfig.totalLaps}`;
+    
+    // Process and Styling Track Flags
+    const flagEl = document.getElementById("flagBox");
+    const flagTextRaw = raceConfig.flagText.toUpperCase();
+    document.getElementById("flagStatus").textContent = raceConfig.flagText;
+    
+    // Clear old state flag styles
+    flagEl.className = ""; 
+    if (flagTextRaw.includes("GREEN")) flagEl.classList.add("flag-green");
+    else if (flagTextRaw.includes("YELLOW")) flagEl.classList.add("flag-yellow");
+    else if (flagTextRaw.includes("RED")) flagEl.classList.add("flag-red");
+    else if (flagTextRaw.includes("SAFETY CAR")) flagEl.classList.add("flag-safety");
+    else if (flagTextRaw.includes("VSC")) flagEl.classList.add("flag-vsc");
+
+    // Render Lower Third Featured Spot
+    document.getElementById("driverPosition").textContent = raceConfig.featuredDriver.position;
+    document.getElementById("driverName").textContent = raceConfig.featuredDriver.name;
+    document.getElementById("driverTeam").textContent = raceConfig.featuredDriver.team;
+
+    // Render Leaderboard Stack
+    const leadContainer = document.getElementById("driverContainer");
+    leadContainer.innerHTML = ""; // Clear existing grid space
+    
+    raceConfig.leaderboard.forEach(driver => {
+        const row = document.createElement("div");
+        row.className = "driver";
+        row.innerHTML = `
+            <div class="position">P${driver.pos}</div>
+            <div class="driverName">${driver.name}</div>
+            <div class="gap">${driver.gap}</div>
+        `;
+        leadContainer.appendChild(row);
+    });
+
+    // Render Dynamic Active Infractions Penalty Bar
+    const penaltyContainer = document.getElementById("penaltiesBar");
+    penaltyContainer.innerHTML = ""; // Flush previous loop items
+    
+    raceConfig.penalties.forEach(p => {
+        const item = document.createElement("div");
+        item.className = "penalty-item fadeIn";
+        item.innerHTML = `
+            <div class="penalty-driver">${p.driver}</div>
+            <div class="penalty-reason">${p.infraction}</div>
+        `;
+        penaltyContainer.appendChild(item);
+    });
+}
+
+// Initial Run Initialization
+executeRender();
+
+</script>
+</body>
+</html>
