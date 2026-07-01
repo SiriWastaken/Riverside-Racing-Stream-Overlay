@@ -31,12 +31,16 @@
 }
 
 body{
-    overflow:hidden;
+    overflow:auto;
     font-family:var(--font);
     color:white;
     background:transparent;
     width: 100vw;
     height: 100vh;
+}
+
+body.obs-mode {
+    overflow: hidden;
 }
 
 /* TOP BANNER */
@@ -235,47 +239,296 @@ body{
 .hide-view {
     display: none !important;
 }
+
+/* ====================================================================
+   CONTROL PANEL UI STYLING (Only renders when ?obs=true is omitted)
+   ==================================================================== */
+#controlPanel {
+    background: #111116;
+    min-height: 100vh;
+    width: 100vw;
+    padding: 30px;
+    color: #e2e2e9;
+}
+.panel-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+@media (max-width: 900px) {
+    .panel-container { grid-template-columns: 1fr; }
+}
+.panel-section {
+    background: #191922;
+    border-radius: 8px;
+    padding: 24px;
+    border: 1px solid #2a2a38;
+}
+.panel-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #2a2a38;
+    padding-bottom: 8px;
+    color: var(--fia-color);
+}
+.form-group {
+    margin-bottom: 16px;
+}
+label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    color: #a0a0b0;
+}
+input[type="text"], input[type="number"] {
+    width: 100%;
+    background: #22222f;
+    border: 1px solid #3a3a4f;
+    border-radius: 4px;
+    padding: 10px 14px;
+    color: white;
+    font-family: inherit;
+    font-size: 14px;
+}
+input[type="text"]:focus, input[type="number"]:focus {
+    outline: none;
+    border-color: var(--fia-color);
+}
+.checkbox-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #22222f;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.checkbox-item input {
+    cursor: pointer;
+}
+.driver-entry, .penalty-entry {
+    display: grid;
+    grid-template-columns: 30px 50px 1fr 100px 40px;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+    background: #22222f;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid transparent;
+}
+.driver-entry.dragging {
+    opacity: 0.4;
+    border: 1px dashed var(--fia-color);
+}
+.drag-handle {
+    cursor: grab;
+    user-select: none;
+    text-align: center;
+    color: #a0a0b0;
+    font-size: 18px;
+}
+.drag-handle:active {
+    cursor: grabbing;
+}
+.penalty-entry {
+    grid-template-columns: 1fr 1fr 40px;
+    background: transparent;
+    padding: 0;
+}
+.btn {
+    background: var(--fia-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+.btn:hover { background: #ff543a; }
+.btn-sec { background: #3a3a4f; }
+.btn-sec:hover { background: #4a4a65; }
+.btn-danger { background: #ff3b30; }
+.btn-danger:hover { background: #e02e24; }
+.row-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+.flag-shortcuts {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+}
+.shortcut-btn {
+    flex: 1;
+    background: #2b2b3d;
+    border: 1px solid #44445c;
+    color: white;
+    border-radius: 4px;
+    padding: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.shortcut-btn:hover {
+    background: #3a3a54;
+    border-color: var(--fia-color);
+}
 </style>
 </head>
 
 <body>
 
-<div id="topBanner" class="fadeIn">
-    <div id="raceName">TORONTO GP</div>
-    <div id="session">RACE</div>
-</div>
-
-<div id="lapBox">
-    <div id="lapLabel">LAP</div>
-    <div id="lapCount">12 / 25</div>
-</div>
-
-<div id="flagBox">
-    <div id="flagStatus">🟢 GREEN FLAG</div>
-</div>
-
-<div id="leaderboard">
-    <div class="leaderHeader">LIVE STANDINGS</div>
-    <div id="driverContainer"></div>
-</div>
-
-<div id="penaltiesBar">
+<div id="overlayContainer">
+    <div id="topBanner" class="fadeIn">
+        <div id="raceName">RIVERSIDE GP</div>
+        <div id="session">RACE</div>
     </div>
 
-<div id="lowerThird">
-    <div id="driverPosition">P1</div>
-    <div id="driverName">Sri</div>
-    <div id="driverTeam">Apex Racing</div>
+    <div id="lapBox">
+        <div id="lapLabel">LAP</div>
+        <div id="lapCount">9 / 25</div>
+    </div>
+
+    <div id="flagBox">
+        <div id="flagStatus">🟢 GREEN FLAG</div>
+    </div>
+
+    <div id="leaderboard">
+        <div class="leaderHeader">LIVE STANDINGS</div>
+        <div id="driverContainer"></div>
+    </div>
+
+    <div id="penaltiesBar"></div>
+
+    <div id="lowerThird">
+        <div id="driverPosition">P1</div>
+        <div id="driverName">Skimchi12</div>
+        <div id="driverTeam">Apex Racing</div>
+    </div>
+</div>
+
+<div id="controlPanel" class="hide-view">
+    <div style="max-width: 1200px; margin: 0 auto 15px auto; display: flex; justify-content: space-between; align-items: center; background: #191922; padding: 12px 24px; border-radius: 8px; border: 1px solid #2a2a38;">
+        <span style="font-weight: 700; font-size: 16px; color: var(--fia-color);">🏁 SERVER CONTROL ROOM</span>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 13px; color: #a0a0b0;">Room Code: <strong id="roomCodeDisplay" style="color: white; font-family: monospace; font-size: 14px;">---</strong></span>
+            <span id="socketStatus" style="background: #ff3b30; color: white; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase;">Disconnected</span>
+        </div>
+    </div>
+
+    <div class="panel-container">
+        
+        <div>
+            <div class="panel-section form-group">
+                <div class="panel-title">Visibility Switches</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" id="show-topBanner"> Top Banner</label>
+                    <label class="checkbox-item"><input type="checkbox" id="show-lapBox"> Lap Counter</label>
+                    <label class="checkbox-item"><input type="checkbox" id="show-flagBox"> Flag Box</label>
+                    <label class="checkbox-item"><input type="checkbox" id="show-leaderboard"> Leaderboard</label>
+                    <label class="checkbox-item"><input type="checkbox" id="show-penaltiesBar"> Penalties Bar</label>
+                    <label class="checkbox-item"><input type="checkbox" id="show-lowerThird"> Lower Third</label>
+                </div>
+            </div>
+
+            <div class="panel-section form-group">
+                <div class="panel-title">Race Information</div>
+                <div class="form-group">
+                    <label>Race Name</label>
+                    <input type="text" id="input-raceName">
+                </div>
+                <div class="form-group">
+                    <label>Session</label>
+                    <input type="text" id="input-session">
+                </div>
+                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label>Current Lap</label>
+                        <input type="number" id="input-currentLap">
+                    </div>
+                    <div>
+                        <label>Total Laps</label>
+                        <input type="number" id="input-totalLaps">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Track Flag Status (Type 1-5 or explicit text)</label>
+                    <input type="text" id="input-flagText" placeholder="e.g., 1 or GREEN FLAG">
+                    <div class="flag-shortcuts">
+                        <button class="shortcut-btn" onclick="applyFlagShortcut('1')">1: Green</button>
+                        <button class="shortcut-btn" onclick="applyFlagShortcut('2')">2: Yellow</button>
+                        <button class="shortcut-btn" onclick="applyFlagShortcut('3')">3: Red</button>
+                        <button class="shortcut-btn" onclick="applyFlagShortcut('4')">4: Safety Car</button>
+                        <button class="shortcut-btn" onclick="applyFlagShortcut('5')">5: VSC</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section form-group" style="margin-top: 30px;">
+                <div class="panel-title">Featured Driver Card (Lower Third)</div>
+                <div style="display: grid; grid-template-columns: 80px 1fr; gap: 15px;" class="form-group">
+                    <div>
+                        <label>Pos</label>
+                        <input type="text" id="input-featPos">
+                    </div>
+                    <div>
+                        <label>Driver Name</label>
+                        <input type="text" id="input-featName">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Team Name</label>
+                    <input type="text" id="input-featTeam">
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="panel-section form-group">
+                <div class="panel-title">Live Leaderboard Grid (Drag ☰ to Reorder)</div>
+                <div id="control-leaderboard-list">
+                    </div>
+                <div class="row-actions">
+                    <button class="btn btn-sec" onclick="addLeaderboardRow()">+ Add Driver</button>
+                </div>
+            </div>
+
+            <div class="panel-section form-group" style="margin-top: 30px;">
+                <div class="panel-title">Active Race Infractions (Penalties Bar)</div>
+                <div id="control-penalties-list">
+                    </div>
+                <div class="row-actions">
+                    <button class="btn btn-sec" onclick="addPenaltyRow()">+ Add Penalty</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 <script>
 
 /* ====================================================================
-   ✏️ EASY DATA CONFIGURATION ENGINE (Edit your live session data here)
+   ✏️ DEFAULT BASE DATA ENGINE
    ==================================================================== */
 
-const raceConfig = {
-    // VISIBILITY SWITCHES (Set to true to show, false to completely hide on screen)
+const defaultRaceConfig = {
     shows: {
         topBanner: true,
         lapBox: true,
@@ -284,30 +537,21 @@ const raceConfig = {
         penaltiesBar: true,
         lowerThird: true
     },
-
-    // BANNER & LAPS INFO
     raceName: "RIVERSIDE GP",
     session: "PRACTICE",
-    currentLap: 9,
+    currentLap: 1,
     totalLaps: 20,
-
-    flagText: "🟠 SAFETY CAR", 
-
-    // CURRENT FEATURED DRIVER CARD (Lower Third Focus)
+    flagText: "🟢 GREEN FLAG", 
     featuredDriver: {
         position: "P1",
         name: "Skimchi12",
         team: "Red Bull Racing"
     },
-
-    // LIVE PENALTIES RECEIVED BAR
-    // Add/remove array items as needed to broadcast live penalties
     penalties: [
         { driver: "#44 ABCGRA123", infraction: "50s - Track Limits" },
-        { driver: "#44 ABCGRA123", infraction: "Skid Thickness" }
+        { driver: "#44 ABCGRA123", infraction: "Skid Thickness" },
+        { driver: "#1 Skimchi12", infraction: "Test Infract" }
     ],
-
-    // LIVE LEADERBOARD GRID ARRAY
     leaderboard: [
         { pos: "1", name: "Skimchi12", gap: "LEADER" },
         { pos: "2", name: "Driver 2", gap: "+1.242" },
@@ -320,11 +564,88 @@ const raceConfig = {
     ]
 };
 
+let raceConfig = JSON.parse(JSON.stringify(defaultRaceConfig));
+let previousRenderString = "";
+
+// WEBSOCKET SHUTTLE INTERFACE
+let ws;
+const urlParams = new URLSearchParams(window.location.search);
+const isObsMode = urlParams.get('obs') === 'true';
+const roomCode = urlParams.get('room') || '1234';
+
+function connectSignalingServer() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    ws = new WebSocket(`${protocol}//${window.location.host}`);
+
+    ws.onopen = () => {
+        const statusEl = document.getElementById("socketStatus");
+        if (statusEl) {
+            statusEl.textContent = "Connected";
+            statusEl.style.background = "#4CD964";
+        }
+        const roomEl = document.getElementById("roomCodeDisplay");
+        if (roomEl) roomEl.textContent = roomCode;
+
+        // Authorize connection to sync hub room
+        ws.send(JSON.stringify({ type: 'JOIN', room: roomCode, isController: !isObsMode }));
+    };
+
+    ws.onclose = () => {
+        const statusEl = document.getElementById("socketStatus");
+        if (statusEl) {
+            statusEl.textContent = "Disconnected";
+            statusEl.style.background = "#ff3b30";
+        }
+        setTimeout(connectSignalingServer, 2000);
+    };
+
+    ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        if (message.type === 'SYNC') {
+            raceConfig = message.payload;
+            executeRender();
+            if (!isObsMode) {
+                updateControllerFormValues();
+            }
+        }
+    };
+}
+
+function saveConfigToStorage() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'UPDATE', room: roomCode, payload: raceConfig }));
+    }
+}
+
+// Converts numbering commands 1-5 to proper flag status descriptions 
+function processFlagAliases(input) {
+    const trimmed = String(input).trim();
+    if (trimmed === "1") return "🟢 GREEN FLAG";
+    if (trimmed === "2") return "🟡 YELLOW FLAG";
+    if (trimmed === "3") return "🔴 RED FLAG";
+    if (trimmed === "4") return "🏁 SAFETY CAR";
+    if (trimmed === "5") return "🟠 VSC";
+    return input; // Fallback to raw text string if anything else typed
+}
+
 /* ====================================
    CORE RENDER PIPELINE
    ==================================== */
 
 function executeRender() {
+    if (isObsMode && !document.getElementById("overlayContainer")) return;
+
+    // Generate structural blueprint representing the array structure of this cycle
+    const currentStructureBlueprint = JSON.stringify({
+        shows: raceConfig.shows,
+        lbCount: raceConfig.leaderboard.length,
+        pCount: raceConfig.penalties.length,
+        flagText: raceConfig.flagText
+    });
+
+    const isStructureIdentical = (currentStructureBlueprint === previousRenderString);
+    previousRenderString = currentStructureBlueprint;
+
     // Handle Global Component Visibility States
     document.getElementById("topBanner").classList.toggle("hide-view", !raceConfig.shows.topBanner);
     document.getElementById("lapBox").classList.toggle("hide-view", !raceConfig.shows.lapBox);
@@ -333,15 +654,16 @@ function executeRender() {
     document.getElementById("penaltiesBar").classList.toggle("hide-view", !raceConfig.shows.penaltiesBar);
     document.getElementById("lowerThird").classList.toggle("hide-view", !raceConfig.shows.lowerThird);
 
-    // Render Global Identifiers
+    // Render Global Identifiers without resetting DOM structure nodes
     document.getElementById("raceName").textContent = raceConfig.raceName;
     document.getElementById("session").textContent = raceConfig.session;
     document.getElementById("lapCount").textContent = `${raceConfig.currentLap} / ${raceConfig.totalLaps}`;
     
     // Process and Styling Track Flags
     const flagEl = document.getElementById("flagBox");
-    const flagTextRaw = raceConfig.flagText.toUpperCase();
-    document.getElementById("flagStatus").textContent = raceConfig.flagText;
+    const activeProcessedFlag = processFlagAliases(raceConfig.flagText);
+    const flagTextRaw = activeProcessedFlag.toUpperCase();
+    document.getElementById("flagStatus").textContent = activeProcessedFlag;
     
     // Clear old state flag styles
     flagEl.className = ""; 
@@ -356,38 +678,330 @@ function executeRender() {
     document.getElementById("driverName").textContent = raceConfig.featuredDriver.name;
     document.getElementById("driverTeam").textContent = raceConfig.featuredDriver.team;
 
-    // Render Leaderboard Stack
+    // Render Leaderboard Stack safely
     const leadContainer = document.getElementById("driverContainer");
-    leadContainer.innerHTML = ""; // Clear existing grid space
     
-    raceConfig.leaderboard.forEach(driver => {
-        const row = document.createElement("div");
-        row.className = "driver";
-        row.innerHTML = `
-            <div class="position">P${driver.pos}</div>
-            <div class="driverName">${driver.name}</div>
-            <div class="gap">${driver.gap}</div>
-        `;
-        leadContainer.appendChild(row);
-    });
+    if (!isStructureIdentical) {
+        // structural change: purge list space safely and append elements with animations
+        leadContainer.innerHTML = ""; 
+        raceConfig.leaderboard.forEach(driver => {
+            const row = document.createElement("div");
+            row.className = "driver";
+            row.innerHTML = `
+                <div class="position">P${driver.pos}</div>
+                <div class="driverName">${driver.name}</div>
+                <div class="gap">${driver.gap}</div>
+            `;
+            leadContainer.appendChild(row);
+        });
+    } else {
+        // standard update cycle: overwrite text contents without triggering reflow animations
+        const activeUIRows = leadContainer.querySelectorAll(".driver");
+        raceConfig.leaderboard.forEach((driver, index) => {
+            if (activeUIRows[index]) {
+                activeUIRows[index].querySelector(".position").textContent = `P${driver.pos}`;
+                activeUIRows[index].querySelector(".driverName").textContent = driver.name;
+                activeUIRows[index].querySelector(".gap").textContent = driver.gap;
+            }
+        });
+    }
 
-    // Render Dynamic Active Infractions Penalty Bar
+    // Render Dynamic Active Infractions Penalty Bar safely
     const penaltyContainer = document.getElementById("penaltiesBar");
-    penaltyContainer.innerHTML = ""; // Flush previous loop items
     
-    raceConfig.penalties.forEach(p => {
-        const item = document.createElement("div");
-        item.className = "penalty-item fadeIn";
-        item.innerHTML = `
-            <div class="penalty-driver">${p.driver}</div>
-            <div class="penalty-reason">${p.infraction}</div>
+    if (!isStructureIdentical) {
+        penaltyContainer.innerHTML = ""; 
+        raceConfig.penalties.forEach(p => {
+            const item = document.createElement("div");
+            item.className = "penalty-item fadeIn";
+            item.innerHTML = `
+                <div class="penalty-driver">${p.driver}</div>
+                <div class="penalty-reason">${p.infraction}</div>
+            `;
+            penaltyContainer.appendChild(item);
+        });
+    } else {
+        const activeUIPenaltyRows = penaltyContainer.querySelectorAll(".penalty-item");
+        raceConfig.penalties.forEach((p, index) => {
+            if (activeUIPenaltyRows[index]) {
+                activeUIPenaltyRows[index].querySelector(".penalty-driver").textContent = p.driver;
+                activeUIPenaltyRows[index].querySelector(".penalty-reason").textContent = p.infraction;
+            }
+        });
+    }
+}
+
+/* ====================================================================
+   CONTROL PANEL LOGIC & WORKFLOWS
+   ==================================================================== */
+
+function initControlPanelForm() {
+    // Checkboxes setup
+    for (let key in raceConfig.shows) {
+        const cb = document.getElementById(`show-${key}`);
+        if (cb) {
+            cb.checked = raceConfig.shows[key];
+            cb.onclick = function() {
+                raceConfig.shows[key] = this.checked;
+                saveConfigToStorage();
+            };
+        }
+    }
+
+    // Direct text parameters listeners
+    setupInputListener("input-raceName", "raceName");
+    setupInputListener("input-session", "session");
+    setupInputListener("input-currentLap", "currentLap", true);
+    setupInputListener("input-totalLaps", "totalLaps", true);
+    setupInputListener("input-flagText", "flagText");
+
+    // Nested object configurations listeners
+    setupNestedInputListener("input-featPos", "featuredDriver", "position");
+    setupNestedInputListener("input-featName", "featuredDriver", "name");
+    setupNestedInputListener("input-featTeam", "featuredDriver", "team");
+
+    renderLeaderboardControlRows();
+    renderPenaltyControlRows();
+}
+
+function setupInputListener(id, configKey, isNumber = false) {
+    const el = document.getElementById(id);
+    el.value = raceConfig[configKey];
+    el.oninput = function() {
+        raceConfig[configKey] = isNumber ? parseInt(this.value) || 0 : this.value;
+        saveConfigToStorage();
+    };
+}
+
+function setupNestedInputListener(id, nestedKey, configKey) {
+    const el = document.getElementById(id);
+    el.value = raceConfig[nestedKey][configKey];
+    el.oninput = function() {
+        raceConfig[nestedKey][configKey] = this.value;
+        saveConfigToStorage();
+    };
+}
+
+function applyFlagShortcut(val) {
+    const el = document.getElementById("input-flagText");
+    if (el) {
+        el.value = val;
+        raceConfig.flagText = val;
+        saveConfigToStorage();
+    }
+}
+
+function renderLeaderboardControlRows() {
+    const container = document.getElementById("control-leaderboard-list");
+    if (!container) return;
+    container.innerHTML = "";
+    
+    raceConfig.leaderboard.forEach((driver, idx) => {
+        const row = document.createElement("div");
+        row.className = "driver-entry";
+        row.draggable = true;
+        row.dataset.index = idx;
+        
+        row.innerHTML = `
+            <div class="drag-handle">☰</div>
+            <input type="text" class="lb-pos-input" value="${driver.pos}" placeholder="Pos" oninput="updateLeaderboardRow(${idx}, 'pos', this.value)">
+            <input type="text" class="lb-name-input" value="${driver.name}" placeholder="Driver Name" oninput="updateLeaderboardRow(${idx}, 'name', this.value)">
+            <input type="text" class="lb-gap-input" value="${driver.gap}" placeholder="Gap" oninput="updateLeaderboardRow(${idx}, 'gap', this.value)">
+            <button class="btn btn-danger" style="padding: 10px 0;" onclick="deleteLeaderboardRow(${idx})">×</button>
         `;
-        penaltyContainer.appendChild(item);
+        
+        // Setup Drag and Drop events
+        row.addEventListener('dragstart', handleDragStart);
+        row.addEventListener('dragover', handleDragOver);
+        row.addEventListener('drop', handleDrop);
+        row.addEventListener('dragend', handleDragEnd);
+        
+        container.appendChild(row);
     });
 }
 
-// Initial Run Initialization
-executeRender();
+/* ====================================
+   DRAG AND DROP REORDER ENGINE
+   ==================================== */
+let dragSrcEl = null;
+
+function handleDragStart(e) {
+    this.classList.add('dragging');
+    dragSrcEl = this;
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+}
+
+function handleDragOver(e) {
+    if (e.preventDefault) {
+        e.preventDefault(); 
+    }
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+function handleDrop(e) {
+    if (e.stopPropagation) {
+        e.stopPropagation(); 
+    }
+    
+    if (dragSrcEl !== this) {
+        const fromIndex = parseInt(dragSrcEl.dataset.index);
+        const toIndex = parseInt(this.dataset.index);
+        
+        // Rearrange array positions values safely
+        const targetElement = raceConfig.leaderboard.splice(fromIndex, 1)[0];
+        raceConfig.leaderboard.splice(toIndex, 0, targetElement);
+        
+        // Snap positioning parameters chronologically down the list automatically!
+        raceConfig.leaderboard.forEach((driver, index) => {
+            driver.pos = String(index + 1);
+            if (index === 0 && driver.gap.startsWith("+")) {
+                driver.gap = "LEADER";
+            }
+        });
+        
+        saveConfigToStorage();
+        renderLeaderboardControlRows();
+    }
+    return false;
+}
+
+function handleDragEnd() {
+    this.classList.remove('dragging');
+    const rows = document.querySelectorAll('.driver-entry');
+    rows.forEach(row => row.classList.remove('dragging'));
+}
+
+function updateLeaderboardRow(idx, field, value) {
+    raceConfig.leaderboard[idx][field] = value;
+    saveConfigToStorage();
+}
+
+function addLeaderboardRow() {
+    const nextPos = raceConfig.leaderboard.length + 1;
+    const defaultGap = nextPos === 1 ? "LEADER" : "+0.000";
+    raceConfig.leaderboard.push({ pos: String(nextPos), name: `Driver ${nextPos}`, gap: defaultGap });
+    saveConfigToStorage();
+    renderLeaderboardControlRows();
+}
+
+function deleteLeaderboardRow(idx) {
+    raceConfig.leaderboard.splice(idx, 1);
+    // Snap rank sequences smoothly back together
+    raceConfig.leaderboard.forEach((driver, index) => {
+        driver.pos = String(index + 1);
+        if (index === 0 && driver.gap.startsWith("+")) {
+            driver.gap = "LEADER";
+        }
+    });
+    saveConfigToStorage();
+    renderLeaderboardControlRows();
+}
+
+function renderPenaltyControlRows() {
+    const container = document.getElementById("control-penalties-list");
+    if (!container) return;
+    container.innerHTML = "";
+    raceConfig.penalties.forEach((p, idx) => {
+        const row = document.createElement("div");
+        row.className = "penalty-entry";
+        row.innerHTML = `
+            <input type="text" value="${p.driver}" placeholder="Driver Label" oninput="updatePenaltyRow(${idx}, 'driver', this.value)">
+            <input type="text" value="${p.infraction}" placeholder="Infraction Details" oninput="updatePenaltyRow(${idx}, 'infraction', this.value)">
+            <button class="btn btn-danger" style="padding: 10px 0;" onclick="deletePenaltyRow(${idx})">×</button>
+        `;
+        container.appendChild(row);
+    });
+}
+
+function updatePenaltyRow(idx, field, value) {
+    raceConfig.penalties[idx][field] = value;
+    saveConfigToStorage();
+}
+
+function addPenaltyRow() {
+    raceConfig.penalties.push({ driver: "#00 New Driver", infraction: "Time Penalty" });
+    saveConfigToStorage();
+    renderPenaltyControlRows();
+}
+
+function deletePenaltyRow(idx) {
+    raceConfig.penalties.splice(idx, 1);
+    saveConfigToStorage();
+    renderPenaltyControlRows();
+}
+
+function updateControllerFormValues() {
+    // Dynamically mirror data updates back into controller inputs if open elsewhere without losing user focus
+    const rName = document.getElementById("input-raceName"); if(rName && document.activeElement !== rName) rName.value = raceConfig.raceName;
+    const sName = document.getElementById("input-session"); if(sName && document.activeElement !== sName) sName.value = raceConfig.session;
+    const cLap = document.getElementById("input-currentLap"); if(cLap && document.activeElement !== cLap) cLap.value = raceConfig.currentLap;
+    const tLap = document.getElementById("input-totalLaps"); if(tLap && document.activeElement !== tLap) tLap.value = raceConfig.totalLaps;
+    const fText = document.getElementById("input-flagText"); if(fText && document.activeElement !== fText) fText.value = raceConfig.flagText;
+    
+    const fP = document.getElementById("input-featPos"); if(fP && document.activeElement !== fP) fP.value = raceConfig.featuredDriver.position;
+    const fN = document.getElementById("input-featName"); if(fN && document.activeElement !== fN) fN.value = raceConfig.featuredDriver.name;
+    const fT = document.getElementById("input-featTeam"); if(fT && document.activeElement !== fT) fT.value = raceConfig.featuredDriver.team;
+
+    // Visibility switches
+    for (let key in raceConfig.shows) {
+        const cb = document.getElementById(`show-${key}`);
+        if (cb && document.activeElement !== cb) cb.checked = raceConfig.shows[key];
+    }
+
+    // Keep listing row entries inputs aligned without breaking structural active re-draw states
+    const listContainer = document.getElementById("control-leaderboard-list");
+    if (listContainer) {
+        const entryRows = listContainer.querySelectorAll(".driver-entry");
+        if (entryRows.length !== raceConfig.leaderboard.length) {
+            renderLeaderboardControlRows();
+        } else {
+            raceConfig.leaderboard.forEach((driver, idx) => {
+                if (entryRows[idx]) {
+                    const pIn = entryRows[idx].querySelector(".lb-pos-input"); if(pIn && document.activeElement !== pIn) pIn.value = driver.pos;
+                    const nIn = entryRows[idx].querySelector(".lb-name-input"); if(nIn && document.activeElement !== nIn) nIn.value = driver.name;
+                    const gIn = entryRows[idx].querySelector(".lb-gap-input"); if(gIn && document.activeElement !== gIn) gIn.value = driver.gap;
+                }
+            });
+        }
+    }
+
+    const penaltyContainer = document.getElementById("control-penalties-list");
+    if (penaltyContainer) {
+        const penaltyRows = penaltyContainer.querySelectorAll(".penalty-entry");
+        if (penaltyRows.length !== raceConfig.penalties.length) {
+            renderPenaltyControlRows();
+        } else {
+            raceConfig.penalties.forEach((p, idx) => {
+                if (penaltyRows[idx]) {
+                    const inputs = penaltyRows[idx].querySelectorAll("input");
+                    if (inputs[0] && document.activeElement !== inputs[0]) inputs[0].value = p.driver;
+                    if (inputs[1] && document.activeElement !== inputs[1]) inputs[1].value = p.infraction;
+                }
+            });
+        }
+    }
+}
+
+/* ====================================
+   ROUTE MANAGEMENT AND AGENTS
+   ==================================== */
+
+if (isObsMode) {
+    // Broadcast Graphics Configuration
+    document.body.classList.add("obs-mode");
+    document.getElementById("controlPanel").remove(); // Purge inputs entirely from DOM
+    executeRender();
+} else {
+    // Control Room Panel Configuration
+    document.getElementById("overlayContainer").remove(); // Purge layout view overlay
+    document.getElementById("controlPanel").classList.remove("hide-view");
+    initControlPanelForm();
+}
+
+// Spin up real-time network sync
+connectSignalingServer();
 
 </script>
 </body>
